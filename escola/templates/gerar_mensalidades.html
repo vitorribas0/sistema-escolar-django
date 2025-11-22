@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerar Mensalidades - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">🔄 Gerar Mensalidades Automáticas</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'mensalidade_lista' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-plus"></i> Gerar Mensalidades do Mês</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="mes" class="form-label">Mês</label>
+                        <select name="mes" id="mes" class="form-select" required>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11" {% if mes_atual == 11 %}selected{% endif %}>Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ano" class="form-label">Ano</label>
+                        <input type="number" name="ano" id="ano" class="form-control" value="{{ ano_atual }}" min="2020" max="2030" required>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Atenção:</strong> Serão geradas mensalidades para todos os <strong>{{ total_alunos }}</strong> aluno(s) ativo(s).
+                        <br>Vencimento: dia <strong>10</strong> do mês selecionado.
+                        <br><strong>Cada aluno terá o valor individual configurado em seu cadastro.</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-lightning-charge"></i> Gerar Mensalidades Automaticamente
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> Como Funciona</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-primary">📌 Geração Automática</h6>
+                <p>O sistema irá criar mensalidades para todos os alunos ativos cadastrados no sistema.</p>
+
+                <h6 class="text-primary mt-3">📅 Data de Vencimento</h6>
+                <p>Todas as mensalidades terão vencimento no dia <strong>10</strong> do mês selecionado.</p>
+
+                <h6 class="text-primary mt-3">⚠️ Status Automático</h6>
+                <ul>
+                    <li><strong>Pendente:</strong> Se a data de vencimento for futura</li>
+                    <li><strong>Atrasado:</strong> Se a data de vencimento já passou</li>
+                </ul>
+
+                <h6 class="text-primary mt-3">🔒 Segurança</h6>
+                <p>O sistema <strong>não cria mensalidades duplicadas</strong>. Se um aluno já possui mensalidade para o mês, ela será ignorada.</p>
+
+                <h6 class="text-primary mt-3">💡 Dica</h6>
+                <p class="mb-0">Execute essa função sempre no <strong>início do mês</strong> para gerar as mensalidades do mês seguinte!</p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-success text-white">
+                <h5><i class="bi bi-check-circle"></i> Última Geração</h5>
+            </div>
+            <div class="card-body">
+                {% if ultima_geracao %}
+                <p><strong>Data:</strong> {{ ultima_geracao|date:"d/m/Y H:i" }}</p>
+                <p><strong>Total gerado:</strong> {{ total_ultima_geracao }} mensalidades</p>
+                {% else %}
+                <p class="text-muted mb-0">Nenhuma geração realizada ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

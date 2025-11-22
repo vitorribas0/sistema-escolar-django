@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ aluno.nome }} - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ aluno.nome }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'aluno_lista' %}" class="btn btn-secondary me-2">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        <a href="{% url 'historico_pagamentos' aluno.id %}" class="btn btn-info me-2">
+            <i class="bi bi-clock-history"></i> Histórico de Pagamentos
+        </a>
+        <a href="{% url 'aluno_editar' aluno.id %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body text-center">
+                {% if aluno.foto %}
+                <img src="{{ aluno.foto.url }}" alt="{{ aluno.nome }}" class="img-fluid rounded-circle mb-3" style="max-width: 200px; border: 4px solid #3498DB; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                {% else %}
+                <div class="d-inline-flex rounded-circle mb-3" style="width: 200px; height: 200px; background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%); border: 4px solid #3498DB; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <i class="bi bi-person-fill text-white m-auto" style="font-size: 8rem;"></i>
+                </div>
+                {% endif %}
+                <h5 class="card-title">{{ aluno.nome }}</h5>
+                <p class="card-text">
+                    {% if aluno.ativo %}
+                    <span class="badge bg-success">Ativo</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inativo</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="bi bi-person-badge"></i> Informações Pessoais</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Documento:</dt>
+                    <dd class="col-sm-8">{{ aluno.documento }}</dd>
+                    
+                    <dt class="col-sm-4">Data de Nascimento:</dt>
+                    <dd class="col-sm-8">{{ aluno.data_nascimento|date:"d/m/Y"|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">Nome do Pai:</dt>
+                    <dd class="col-sm-8">{{ aluno.nome_pai|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">Nome da Mãe:</dt>
+                    <dd class="col-sm-8">{{ aluno.nome_mae|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="bi bi-telephone"></i> Contato</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Telefone:</dt>
+                    <dd class="col-sm-8">{{ aluno.telefone|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">E-mail:</dt>
+                    <dd class="col-sm-8">{{ aluno.email|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">Endereço:</dt>
+                    <dd class="col-sm-8">{{ aluno.endereco|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-journal-text"></i> Turmas</h5>
+            </div>
+            <div class="card-body">
+                {% if aluno.turmas.all %}
+                <ul class="list-group">
+                    {% for turma in aluno.turmas.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ turma.nome }} - {{ turma.ano_letivo }}
+                        <span class="badge bg-primary rounded-pill">{{ turma.periodo|capfirst }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Aluno não está matriculado em nenhuma turma.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

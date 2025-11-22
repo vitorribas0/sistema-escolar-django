@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Turmas - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">Turmas</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="/admin/escola/turma/add/" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nova Turma
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for turma in turmas %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">{{ turma.nome }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <strong>Ano Letivo:</strong> {{ turma.ano_letivo }}<br>
+                    <strong>Período:</strong> {{ turma.periodo|capfirst }}<br>
+                    <strong>Professor:</strong> {{ turma.professor_responsavel.get_full_name|default:"Não atribuído" }}<br>
+                    <strong>Alunos:</strong> {{ turma.alunos.count }}
+                </p>
+                <p>
+                    {% if turma.ativa %}
+                    <span class="badge bg-success">Ativa</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inativa</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'turma_detalhe' turma.id %}" class="btn btn-sm btn-info">
+                    <i class="bi bi-eye"></i> Ver Detalhes
+                </a>
+                <a href="/admin/escola/turma/{{ turma.id }}/change/" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Nenhuma turma cadastrada.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

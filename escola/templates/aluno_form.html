@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-person-plus"></i> {{ titulo }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'aluno_lista' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div class="mb-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Informações Pessoais -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person"></i> Informações Pessoais</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nome" name="nome" value="{{ aluno.nome|default:'' }}" required>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="documento" class="form-label">RG/CPF <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="documento" name="documento" value="{{ aluno.documento|default:'' }}" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                                    <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ aluno.data_nascimento|date:'Y-m-d'|default:'' }}">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="foto" class="form-label">Foto do Aluno</label>
+                                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                                    {% if aluno.foto %}
+                                    <div class="mt-2">
+                                        <img src="{{ aluno.foto.url }}" alt="{{ aluno.nome }}" class="img-thumbnail" style="max-width: 100px;">
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações Familiares -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-people"></i> Informações Familiares</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nome_pai" class="form-label">Nome do Pai</label>
+                                    <input type="text" class="form-control" id="nome_pai" name="nome_pai" value="{{ aluno.nome_pai|default:'' }}">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="nome_mae" class="form-label">Nome da Mãe</label>
+                                    <input type="text" class="form-control" id="nome_mae" name="nome_mae" value="{{ aluno.nome_mae|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contato -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-telephone"></i> Contato</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefone" class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ aluno.telefone|default:'' }}" placeholder="(00) 00000-0000">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">E-mail</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ aluno.email|default:'' }}" placeholder="email@exemplo.com">
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="endereco" class="form-label">Endereço Completo</label>
+                                    <textarea class="form-control" id="endereco" name="endereco" rows="3">{{ aluno.endereco|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mensalidade -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="bi bi-cash-stack"></i> Mensalidade</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="valor_mensalidade" class="form-label">Valor da Mensalidade (R$) <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control" id="valor_mensalidade" name="valor_mensalidade" value="{{ aluno.valor_mensalidade|default:'450.00' }}" required>
+                                    <small class="text-muted">Valor fixo mensal que este aluno paga</small>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label d-block">Status</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" id="ativo" name="ativo" {% if aluno.ativo or not aluno %}checked{% endif %}>
+                                        <label class="form-check-label" for="ativo">
+                                            <strong>Aluno Ativo</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botões -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'aluno_lista' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Salvar Aluno
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header {
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #2C3E50;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498DB;
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+</style>
+
+<script>
+// Máscara de telefone
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+        value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    } else {
+        value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

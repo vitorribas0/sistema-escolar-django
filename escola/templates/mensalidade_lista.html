@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Mensalidades - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">Mensalidades</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'gerar_mensalidades' %}" class="btn btn-success me-2">
+            <i class="bi bi-lightning-charge"></i> Gerar Automático
+        </a>
+        <a href="/admin/escola/mensalidade/add/" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nova Mensalidade
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="mb-3">
+            <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                    <input type="text" name="q" class="form-control" placeholder="🔍 Buscar por nome do aluno..." value="{{ request.GET.q }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">📊 Todos os status</option>
+                        <option value="pendente" {% if request.GET.status == 'pendente' %}selected{% endif %}>⏳ Pendente</option>
+                        <option value="pago" {% if request.GET.status == 'pago' %}selected{% endif %}>✅ Pago</option>
+                        <option value="atrasado" {% if request.GET.status == 'atrasado' %}selected{% endif %}>⚠️ Atrasado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="aluno_ativo" class="form-select">
+                        <option value="">👥 Todos os alunos</option>
+                        <option value="1" {% if request.GET.aluno_ativo == '1' %}selected{% endif %}>✓ Alunos Ativos</option>
+                        <option value="0" {% if request.GET.aluno_ativo == '0' %}selected{% endif %}>✗ Alunos Inativos</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-md-12 mb-2">
+                    <label class="form-label fw-bold"><i class="bi bi-calendar-range"></i> Período de Vencimento:</label>
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="mes_inicial" class="form-select">
+                        <option value="">Mês inicial</option>
+                        <option value="1" {% if request.GET.mes_inicial == '1' %}selected{% endif %}>Janeiro</option>
+                        <option value="2" {% if request.GET.mes_inicial == '2' %}selected{% endif %}>Fevereiro</option>
+                        <option value="3" {% if request.GET.mes_inicial == '3' %}selected{% endif %}>Março</option>
+                        <option value="4" {% if request.GET.mes_inicial == '4' %}selected{% endif %}>Abril</option>
+                        <option value="5" {% if request.GET.mes_inicial == '5' %}selected{% endif %}>Maio</option>
+                        <option value="6" {% if request.GET.mes_inicial == '6' %}selected{% endif %}>Junho</option>
+                        <option value="7" {% if request.GET.mes_inicial == '7' %}selected{% endif %}>Julho</option>
+                        <option value="8" {% if request.GET.mes_inicial == '8' %}selected{% endif %}>Agosto</option>
+                        <option value="9" {% if request.GET.mes_inicial == '9' %}selected{% endif %}>Setembro</option>
+                        <option value="10" {% if request.GET.mes_inicial == '10' %}selected{% endif %}>Outubro</option>
+                        <option value="11" {% if request.GET.mes_inicial == '11' %}selected{% endif %}>Novembro</option>
+                        <option value="12" {% if request.GET.mes_inicial == '12' %}selected{% endif %}>Dezembro</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="ano_inicial" class="form-select">
+                        <option value="">Ano inicial</option>
+                        {% for ano_obj in anos_disponiveis %}
+                        <option value="{{ ano_obj.year }}" {% if request.GET.ano_inicial == ano_obj.year|stringformat:'s' %}selected{% endif %}>{{ ano_obj.year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-1 text-center d-flex align-items-center justify-content-center">
+                    <span class="fw-bold">até</span>
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="mes_final" class="form-select">
+                        <option value="">Mês final</option>
+                        <option value="1" {% if request.GET.mes_final == '1' %}selected{% endif %}>Janeiro</option>
+                        <option value="2" {% if request.GET.mes_final == '2' %}selected{% endif %}>Fevereiro</option>
+                        <option value="3" {% if request.GET.mes_final == '3' %}selected{% endif %}>Março</option>
+                        <option value="4" {% if request.GET.mes_final == '4' %}selected{% endif %}>Abril</option>
+                        <option value="5" {% if request.GET.mes_final == '5' %}selected{% endif %}>Maio</option>
+                        <option value="6" {% if request.GET.mes_final == '6' %}selected{% endif %}>Junho</option>
+                        <option value="7" {% if request.GET.mes_final == '7' %}selected{% endif %}>Julho</option>
+                        <option value="8" {% if request.GET.mes_final == '8' %}selected{% endif %}>Agosto</option>
+                        <option value="9" {% if request.GET.mes_final == '9' %}selected{% endif %}>Setembro</option>
+                        <option value="10" {% if request.GET.mes_final == '10' %}selected{% endif %}>Outubro</option>
+                        <option value="11" {% if request.GET.mes_final == '11' %}selected{% endif %}>Novembro</option>
+                        <option value="12" {% if request.GET.mes_final == '12' %}selected{% endif %}>Dezembro</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="ano_final" class="form-select">
+                        <option value="">Ano final</option>
+                        {% for ano_obj in anos_disponiveis %}
+                        <option value="{{ ano_obj.year }}" {% if request.GET.ano_final == ano_obj.year|stringformat:'s' %}selected{% endif %}>{{ ano_obj.year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                        <a href="{% url 'mensalidade_lista' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Limpar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% if request.GET.q or request.GET.status or request.GET.mes_inicial or request.GET.ano_inicial or request.GET.mes_final or request.GET.ano_final or request.GET.aluno_ativo %}
+            <div class="mt-3 p-2 bg-light rounded">
+                <small class="text-muted">
+                    <i class="bi bi-filter-circle-fill text-primary"></i> <strong>Filtros ativos:</strong>
+                    {% if request.GET.q %}<span class="badge bg-info ms-1">Busca: {{ request.GET.q }}</span>{% endif %}
+                    {% if request.GET.status %}<span class="badge bg-info ms-1">Status: {{ request.GET.status|capfirst }}</span>{% endif %}
+                    {% if request.GET.mes_inicial and request.GET.ano_inicial %}
+                        <span class="badge bg-success ms-1">De: {{ request.GET.mes_inicial }}/{{ request.GET.ano_inicial }}</span>
+                    {% endif %}
+                    {% if request.GET.mes_final and request.GET.ano_final %}
+                        <span class="badge bg-success ms-1">Até: {{ request.GET.mes_final }}/{{ request.GET.ano_final }}</span>
+                    {% endif %}
+                    {% if request.GET.aluno_ativo == '1' %}<span class="badge bg-info ms-1">Alunos Ativos</span>{% endif %}
+                    {% if request.GET.aluno_ativo == '0' %}<span class="badge bg-info ms-1">Alunos Inativos</span>{% endif %}
+                </small>
+            </div>
+            {% endif %}
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>Data Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mensalidade in mensalidades %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if mensalidade.aluno.foto %}
+                                <img src="{{ mensalidade.aluno.foto.url }}" alt="{{ mensalidade.aluno.nome }}" class="rounded-circle me-2" width="35" height="35" style="object-fit: cover; border: 2px solid #3498DB;">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; border: 2px solid #3498DB;">
+                                    <i class="bi bi-person-fill text-white" style="font-size: 1rem;"></i>
+                                </div>
+                                {% endif %}
+                                <span>{{ mensalidade.aluno.nome }}</span>
+                            </div>
+                        </td>
+                        <td>R$ {{ mensalidade.valor }}</td>
+                        <td>{{ mensalidade.vencimento|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if mensalidade.status == 'pago' %}
+                            <span class="badge bg-success">Pago</span>
+                            {% elif mensalidade.status == 'atrasado' %}
+                            <span class="badge bg-danger">Atrasado</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ mensalidade.data_pagamento|date:"d/m/Y"|default:"-" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                {% if mensalidade.status != 'pago' %}
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="mensalidade_id" value="{{ mensalidade.id }}">
+                                    <input type="hidden" name="status" value="pago">
+                                    <button type="submit" class="btn btn-success" title="Marcar como Pago" onclick="return confirm('Marcar como PAGO?')">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                {% if mensalidade.status != 'pendente' %}
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="mensalidade_id" value="{{ mensalidade.id }}">
+                                    <input type="hidden" name="status" value="pendente">
+                                    <button type="submit" class="btn btn-warning" title="Marcar como Pendente" onclick="return confirm('Marcar como PENDENTE?')">
+                                        <i class="bi bi-clock"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                {% if mensalidade.status != 'atrasado' %}
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="mensalidade_id" value="{{ mensalidade.id }}">
+                                    <input type="hidden" name="status" value="atrasado">
+                                    <button type="submit" class="btn btn-danger" title="Marcar como Atrasado" onclick="return confirm('Marcar como ATRASADO?')">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                <a href="{% url 'recibo' mensalidade.id %}" class="btn btn-info" title="Emitir Recibo">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhuma mensalidade encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-graph-up"></i> Resumo Financeiro</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h4 class="text-success">R$ {{ total_pago }}</h4>
+                        <p class="text-muted">Total Pago</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-warning">R$ {{ total_pendente }}</h4>
+                        <p class="text-muted">Total Pendente</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-danger">R$ {{ total_atrasado }}</h4>
+                        <p class="text-muted">Total Atrasado</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-primary">R$ {{ total_geral }}</h4>
+                        <p class="text-muted">Total Geral</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico de Pagamentos - {{ aluno.nome }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">💰 Histórico de Pagamentos - {{ aluno.nome }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'aluno_detalhe' aluno.id %}" class="btn btn-secondary me-2">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        <a href="/admin/escola/mensalidade/add/?aluno={{ aluno.id }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nova Mensalidade
+        </a>
+    </div>
+</div>
+
+<!-- Resumo Financeiro do Aluno -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #27AE60, #229954);">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-check-circle"></i> Pagas</h6>
+                <h3 class="mb-0">{{ total_pagas }}</h3>
+                <small>R$ {{ valor_pago|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #F39C12, #D68910);">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-hourglass-split"></i> Pendentes</h6>
+                <h3 class="mb-0">{{ total_pendentes }}</h3>
+                <small>R$ {{ valor_pendente|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #E74C3C, #C0392B);">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-exclamation-triangle"></i> Atrasadas</h6>
+                <h3 class="mb-0">{{ total_atrasadas }}</h3>
+                <small>R$ {{ valor_atrasado|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #3498DB, #2980B9);">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-cash-stack"></i> Total</h6>
+                <h3 class="mb-0">{{ total_mensalidades }}</h3>
+                <small>R$ {{ valor_total|floatformat:2 }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Histórico de Mensalidades -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="bi bi-clock-history"></i> Histórico Completo de Mensalidades</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mês/Ano</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>Pagamento</th>
+                        <th>Observações</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mensalidade in mensalidades %}
+                    <tr>
+                        <td><strong>{{ mensalidade.vencimento|date:"m/Y" }}</strong></td>
+                        <td><strong>R$ {{ mensalidade.valor|floatformat:2 }}</strong></td>
+                        <td>{{ mensalidade.vencimento|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if mensalidade.status == 'pago' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Pago</span>
+                            {% elif mensalidade.status == 'atrasado' %}
+                            <span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> Atrasado</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if mensalidade.data_pagamento %}
+                            <span class="text-success">
+                                <i class="bi bi-calendar-check"></i> {{ mensalidade.data_pagamento|date:"d/m/Y" }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if mensalidade.observacoes %}
+                            <small class="text-muted">{{ mensalidade.observacoes|truncatewords:5 }}</small>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if mensalidade.status == 'pago' %}
+                            <a href="{% url 'recibo' mensalidade.id %}" class="btn btn-sm btn-success" title="Ver Recibo">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </a>
+                            {% endif %}
+                            <a href="/admin/escola/mensalidade/{{ mensalidade.id }}/change/" class="btn btn-sm btn-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                            <p class="mt-2">Nenhuma mensalidade registrada para este aluno.</p>
+                            <a href="/admin/escola/mensalidade/add/?aluno={{ aluno.id }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle"></i> Cadastrar Primeira Mensalidade
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Pagamentos por Ano -->
+{% if mensalidades %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Resumo Anual</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h2 class="text-success">{{ percentual_pagamento|floatformat:1 }}%</h2>
+                            <p class="text-muted">Taxa de Pagamento</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h2 class="text-primary">R$ {{ ticket_medio|floatformat:2 }}</h2>
+                            <p class="text-muted">Valor Médio</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h2 class="text-info">{{ meses_consecutivos }}</h2>
+                            <p class="text-muted">Meses em Dia</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-3 text-end">
+    <small class="text-muted">
+        <i class="bi bi-info-circle"></i> 
+        Última atualização: {{ hoje|date:"d/m/Y H:i" }}
+    </small>
+</div>
+{% endblock %}

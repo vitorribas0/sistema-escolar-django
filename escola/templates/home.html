@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Início - Sistema Escolar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+<style>
+    .dashboard-card {
+        border-radius: 20px;
+        padding: 25px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+    .dashboard-card i {
+        font-size: 3rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+    .card-alunos {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-turmas {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .card-pendentes {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .card-pagas {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+</style>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card dashboard-card card-alunos">
+            <i class="bi bi-people"></i>
+            <div class="card-body p-0" style="position: relative; z-index: 1;">
+                <h6 class="card-title mb-3" style="font-weight: 600; opacity: 0.9;">👥 Total de Alunos</h6>
+                <p class="display-3 mb-3" style="font-weight: 700;">{{ total_alunos }}</p>
+                <a href="{% url 'aluno_lista' %}" class="btn btn-light btn-sm"><i class="bi bi-arrow-right"></i> Ver todos</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card card-turmas">
+            <i class="bi bi-journal-text"></i>
+            <div class="card-body p-0" style="position: relative; z-index: 1;">
+                <h6 class="card-title mb-3" style="font-weight: 600; opacity: 0.9;">📚 Turmas Ativas</h6>
+                <p class="display-3 mb-3" style="font-weight: 700;">{{ total_turmas }}</p>
+                <a href="{% url 'turma_lista' %}" class="btn btn-light btn-sm"><i class="bi bi-arrow-right"></i> Ver todas</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card card-pendentes">
+            <i class="bi bi-hourglass-split"></i>
+            <div class="card-body p-0" style="position: relative; z-index: 1;">
+                <h6 class="card-title mb-3" style="font-weight: 600; opacity: 0.9;">⏳ Pendentes</h6>
+                <p class="display-3 mb-3" style="font-weight: 700;">{{ mensalidades_pendentes }}</p>
+                <a href="{% url 'mensalidade_lista' %}" class="btn btn-light btn-sm"><i class="bi bi-arrow-right"></i> Ver todas</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card card-pagas">
+            <i class="bi bi-check-circle"></i>
+            <div class="card-body p-0" style="position: relative; z-index: 1;">
+                <h6 class="card-title mb-3" style="font-weight: 600; opacity: 0.9;">✅ Pagas</h6>
+                <p class="display-3 mb-3" style="font-weight: 700;">{{ mensalidades_pagas }}</p>
+                <a href="{% url 'mensalidade_lista' %}" class="btn btn-light btn-sm"><i class="bi bi-arrow-right"></i> Ver todas</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-exclamation-triangle"></i> Mensalidades Atrasadas</h5>
+            </div>
+            <div class="card-body">
+                {% if mensalidades_atrasadas %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mensalidade in mensalidades_atrasadas %}
+                            <tr>
+                                <td>{{ mensalidade.aluno.nome }}</td>
+                                <td>{{ mensalidade.vencimento|date:"d/m/Y" }}</td>
+                                <td>R$ {{ mensalidade.valor }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhuma mensalidade atrasada.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-event"></i> Turmas Ativas</h5>
+            </div>
+            <div class="card-body">
+                {% if turmas_ativas %}
+                <div class="list-group">
+                    {% for turma in turmas_ativas %}
+                    <a href="{% url 'turma_detalhe' turma.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ turma.nome }}</h6>
+                            <small>{{ turma.periodo|capfirst }}</small>
+                        </div>
+                        <small>{{ turma.alunos.count }} aluno(s) - {{ turma.ano_letivo }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhuma turma ativa.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
